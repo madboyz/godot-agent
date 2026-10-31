@@ -1,0 +1,9 @@
+interface:
+  display_name: "Godot Knowledge"
+  short_description: "Query versioned local Godot APIs and engine limits"
+  default_prompt: "Use $godot-knowledge to check my Godot version and find source-backed API guidance."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "godot-knowledge"
+      description: "Local Godot knowledge stdio server"
