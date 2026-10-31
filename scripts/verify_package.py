@@ -32,7 +32,7 @@ def verify(wheel: Path, store: Path | None = None) -> None:
     if not uv:
         raise ValueError("Package verification requires uv")
     with tempfile.TemporaryDirectory(prefix="godot-knowledge-package-") as temporary:
-        directory = Path(temporary)
+        directory = Path(temporary).resolve()
         environment = directory / "isolated environment"
         command([uv, "venv", "--python", sys.executable, str(environment)], directory)
         python = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
@@ -40,7 +40,7 @@ def verify(wheel: Path, store: Path | None = None) -> None:
         launcher = [str(python), "-I", "-m", "godot_knowledge.cli"]
         data = directory / "knowledge store"
         status = json.loads(command([*launcher, "--data", str(data), "status"], directory))
-        assert status["data_root"] == str(data)
+        assert Path(status["data_root"]) == data
         assert status["default_snapshot"] is None
         codex_home = directory / "codex user"
         command(
@@ -50,8 +50,8 @@ def verify(wheel: Path, store: Path | None = None) -> None:
         assert skill.is_file()
         settings = tomllib.loads((codex_home / "config.toml").read_text(encoding="utf-8"))
         registered = settings["mcp_servers"]["godot-knowledge"]
-        assert registered["command"] == str(python)
-        assert registered["args"][3] == str(data)
+        assert Path(registered["command"]) == python
+        assert Path(registered["args"][3]) == data
         assert "godot-knowledge status" in skill.read_text(encoding="utf-8")
         if store:
             result = json.loads(
